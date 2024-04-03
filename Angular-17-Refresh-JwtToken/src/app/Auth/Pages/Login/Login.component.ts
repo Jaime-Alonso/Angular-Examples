@@ -27,16 +27,13 @@ export class LoginComponent {
   });
 
   onSubmit() {
-    console.log("onSubmit");
-    
     if (this.loginForm.valid) {
-      this.authService.GetToken(
-        this.loginForm.value.email!,
-        this.loginForm.value.password!
-      ).subscribe({
-        next: () => this.router.navigateByUrl('/'),
-        error: (error) => this.error = 'Email or Password Incorrect'
-    });
+      this.authService
+        .GetToken(this.loginForm.value.email!, this.loginForm.value.password!)
+        .subscribe({
+          next: () => this.router.navigateByUrl('/'),
+          error: (error) => (this.error = 'Email or Password Incorrect'),
+        });
     }
   }
 }

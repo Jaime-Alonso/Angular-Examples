@@ -12,7 +12,7 @@ import { of } from 'rxjs';
   ],
   templateUrl: './Dashboard.component.html',
   styleUrl: './Dashboard.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class DashboardComponent implements OnInit{
   
@@ -22,15 +22,11 @@ export class DashboardComponent implements OnInit{
   ngOnInit(): void {
 
     this.apiService.getProducts().pipe(
-      catchError(error => {
-        // Aquí puedes manejar el error, por ejemplo, haciendo un console.log
-        console.log(error);
-        // Devuelve un observable para que la cadena no se rompa. Puedes devolver `of([])` para devolver un array vacío como valor por defecto.
+      catchError(error => {        
+        console.log(error);        
         return of([]);
       })
-    ).subscribe(data => {
-      console.log("productos:"+data);
-        
+    ).subscribe(data => {      
       this.products = data
     });
   } 

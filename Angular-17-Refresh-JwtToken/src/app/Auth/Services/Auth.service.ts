@@ -6,10 +6,9 @@ import { environment } from '../../../environments/environment.development';
 import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-
   http: HttpClient = inject(HttpClient);
   router: Router = inject(Router);
 
@@ -18,46 +17,48 @@ export class AuthService {
   private readonly tokenExpirationStorageKey = 'token_expiration';
   private readonly userEmailStorageKey = 'user_email';
 
-  public GetToken(email:string, password: string): Observable<LoginResponse> {
+  public GetToken(email: string, password: string): Observable<LoginResponse> {
     const body = {
       email: email,
-      password: password
-    }
-    console.log("get token");
-    return this.http.post<LoginResponse>(environment.apiUrl + 'token', body).pipe(
-      tap(authInfo => this.storeAuthInfo(authInfo)),
-      catchError(throwError)
-    );    
+      password: password,
+    };
+
+    return this.http
+      .post<LoginResponse>(environment.apiUrl + 'token', body)
+      .pipe(
+        tap((authInfo) => this.storeAuthInfo(authInfo)),
+        catchError(throwError)
+      );
   }
 
-  public RefreshToken() : Observable<LoginResponse>{
+  public RefreshToken(): Observable<LoginResponse> {
     const body = {
       email: localStorage.getItem(this.userEmailStorageKey),
       refreshToken: localStorage.getItem(this.refreshTokenStorageKey),
-    }    
-    
-    return this.http.put<LoginResponse>(environment.apiUrl + 'token', body).pipe(
-      tap(authInfo => this.storeAuthInfo(authInfo)),
-      catchError(err => this.handleRefreshTokenError(err))
-    );
+    };
+
+    return this.http
+      .put<LoginResponse>(environment.apiUrl + 'token', body)
+      .pipe(
+        tap((authInfo) => this.storeAuthInfo(authInfo)),
+        catchError((err) => this.handleRefreshTokenError(err))
+      );
   }
 
   public isTokenExpired(): boolean {
     const expiration = localStorage.getItem(this.tokenExpirationStorageKey);
-    if(!expiration) {
+    if (!expiration) {
       return true;
     }
 
-    var dateExpiration = new Date(expiration!);
-    var actualDate = new Date();
-    const result =new Date(expiration!) < new Date();
+    const result = new Date(expiration!) < new Date();
 
     return result;
   }
 
   public isAuthenticated(): boolean {
     const user = localStorage.getItem(this.userEmailStorageKey);
-    if(user) {
+    if (user) {
       return true;
     }
     return false;
@@ -71,7 +72,7 @@ export class AuthService {
   }
 
   private storeAuthInfo(tokens: LoginResponse) {
-    const  { email, accessToken, accessTokenExpiration, refreshToken } = tokens;
+    const { email, accessToken, accessTokenExpiration, refreshToken } = tokens;
     localStorage.setItem(this.userEmailStorageKey, email);
     localStorage.setItem(this.tokenStorageKey, accessToken);
     localStorage.setItem(this.tokenExpirationStorageKey, accessTokenExpiration);
@@ -79,9 +80,8 @@ export class AuthService {
   }
 
   handleRefreshTokenError(error: HttpErrorResponse): Observable<never> {
-    console.log("error refresh token:" + error);
-    this.logout();    
+    this.logout();
     this.router.navigateByUrl('login');
-    return throwError(() => new Error("Error al refrescar el token: " + error.message));
+    return throwError(() => new Error('Error: ' + error.message));
   }
 }
